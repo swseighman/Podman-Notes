@@ -5,7 +5,7 @@ From the Podman site:
 
 >*Podman is a daemonless container engine for developing, managing, and running OCI Containers on your Linux System. Containers can either be run as root or in rootless mode.*
 
-You can also use `podman` on your Mac system too.
+You can also use `podman` on your Mac system too (see below).
 
 #### Linux Installation
 
