@@ -198,10 +198,10 @@ You can configure `podman` using the UI.
 
 Stop the current `podman machine` by clicking on the stop button:
 
-![](podman-desktop-2.png)
+![](images/podman-desktop-2.png)
 
 Click **Delete** to remove the existing machine.
 
 Next, under **Podman**, create a new machine with **4 cpus** and **8GB of memory**.  Click on the **Create** button, then click on **Start** (be patient, it make take a while to start):
 
-![](podman-desktop-3.png)
+![](images/podman-desktop-3.png)
