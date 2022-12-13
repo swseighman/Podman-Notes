@@ -1,6 +1,12 @@
 
 # Notes on Installing and Using podman
 
+From the Podman site:
+
+>*Podman is a daemonless container engine for developing, managing, and running OCI Containers on your Linux System. Containers can either be run as root or in rootless mode.*
+
+You can also use `podman` on your Mac system too.
+
 #### Linux Installation
 
 For `podman` to function properly, your distribution needs to support `cgroupsV2`.  You can check to determine if it's enabled:
@@ -42,7 +48,7 @@ To install the `podman-docker` package:
 $ sudo dnf install podman-docker
 ```
 
-In addition, if you have existing `docker-compose` files, the `podman-compose` package might be useful too.
+In addition, if you have existing `docker-compose` files, the `podman-compose` package might be useful too (see below).
 
 ```
 $ pip3 install podman-compose
@@ -63,6 +69,8 @@ pids_limit=0
 This parameter sets the maximum number of processes allowed in a container, 0 indicates that no limit is imposed.
 
 #### MacOS Installation
+
+Podman does not run natively on macOS because it was (originally) developed to manage Linux containers. On macOS, Podman interacts with the containers via a Linux VM. Homebrew is the most straightforward method to install packages for Podman.
 
 ```
 $ brew install podman
@@ -94,6 +102,11 @@ Or, if you don't want/need a background service you can just run:
   /usr/local/opt/podman/bin/podman system service --time=0
 ```
 
+>**NOTE:** If you encounter a permissions error (regarding `/usr/local/bin, /usr/local/lib`) during the installation, you'll need to adjust permissions on those directories:
+>
+>```
+>$ sudo chown -R $(whoami) /usr/local/bin /usr/local/lib
+>```
 
 ```
 $ brew services restart podman
@@ -164,17 +177,22 @@ NAME                     VM TYPE     CREATED      LAST UP            CPUS       
 podman-machine-default*  qemu        2 hours ago  Currently running  4           8GB         107.4GB
 ```
 
+The `docker` commands you have used in the past translate to `podman`, so you can continue to use those commands:
 
 ```
 $ podman images
 REPOSITORY  TAG         IMAGE ID    CREATED     SIZE
 ```
 
+Lastly, you can also create an alias (in your `.zshrc` file) which effectively aliases the `docker` command to `podman`. The alias can help in environments where users are more familiar with Docker or where automation expects the `docker` command to be present:
 
+```
+alias docker='podman'
+```
 
 #### Optional
 
-PodmanDesktop is available to help manage your containers/pods, see link [here](https://podman-desktop.io/).
+Podman Desktop is available to help manage your containers/pods, see link [here](https://podman-desktop.io/).
 
 You can configure `podman` using the UI.
 
