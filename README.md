@@ -68,7 +68,7 @@ pids_limit=0
 ```
 This parameter sets the maximum number of processes allowed in a container, 0 indicates that no limit is imposed.
 
-#### MacOS Installation
+#### macOS Installation
 
 Podman does not run natively on macOS because it was (originally) developed to manage Linux containers. On macOS, Podman interacts with the containers via a Linux VM. Homebrew is the most straightforward method to install packages for Podman.
 
