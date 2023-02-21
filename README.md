@@ -54,6 +54,13 @@ In addition, if you have existing `docker-compose` files, the `podman-compose` p
 $ pip3 install podman-compose
 ```
 
+An additional package may be necessary (depending on your Linux distribution):
+
+```
+$ sudo dnf install aardvark-dns -y
+```
+
+
 #### Configuration
 
 In my experience (with an Oracle Cloud Infrastructure instance), I had to edit the container configuration file to uncomment/set the PID parameter (to resolve `pid.max` errors at container run time).
@@ -67,6 +74,21 @@ In the `[containers]` section, find the `pids_limit` parameter and uncomment the
 pids_limit=0
 ```
 This parameter sets the maximum number of processes allowed in a container, 0 indicates that no limit is imposed.
+
+If you encounter the following error:
+
+```
+~ $ podman ps
+WARN[0000] "/" is not a shared mount, this could cause issues or missing mounts with rootless containers
+ERRO[0000] running `/usr/bin/newuidmap 205 0 1000 1 1 100000 65536 65537 200000 1001`: newuidmap: open of uid_map failed: Permission denied
+```
+
+Prior versions of `dnf` required a reinstall of the `shadow-utils` package to make sure `newuidmap` and `newgidmap` have their filecap set.
+
+To fix the permissions on these files, execute:
+```
+$ sudo rpm --restore shadow-utils
+```
 
 #### macOS Installation
 
@@ -205,3 +227,132 @@ Click **Delete** to remove the existing machine.
 Next, under **Podman**, create a new machine with **4 cpus** and **8GB of memory**.  Click on the **Create** button, then click on **Start** (be patient, it make take a while to start):
 
 ![](images/podman-desktop-3.png)
+
+#### Using Podman with K8s (Notes)
+
+Install `minikube` (on x64):
+
+```
+$ curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+$ sudo install minikube-linux-amd64 /usr/local/bin/minikube
+```
+
+Install `kubectl`:
+```
+$ curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+$ sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+```
+Check that `kubectl` installed properly:
+```
+$ kubectl version --client --output=yaml
+clientVersion:
+  buildDate: "2023-01-18T15:58:16Z"
+  compiler: gc
+  gitCommit: 8f94681cd294aa8cfd3407b8191f6c70214973a4
+  gitTreeState: clean
+  gitVersion: v1.26.1
+  goVersion: go1.19.5
+  major: "1"
+  minor: "26"
+  platform: linux/amd64
+kustomizeVersion: v4.5.7
+```
+
+Add command completion and an alias for `kubectl`:
+```
+$ kubectl completion bash | sudo tee /etc/bash_completion.d/kubectl > /dev/null
+$ echo 'alias k=kubectl' >>~/.bashrc
+$ echo 'complete -o default -F __start_kubectl k' >>~/.bashrc
+$ source .bashrc
+ ```
+
+Now you can use `k` as an alias for `kubectl`:
+```
+$ k version --client --output=yaml
+```
+
+Set some `minikube` configuration parameters:
+
+```
+$ minikube config set cpus 4
+$ minikube config set driver podman
+$ minikube config set memory 12288
+ ```
+ To view the configuration:
+ ```
+ $ minikube config view
+- cpus: 4
+- driver: podman
+- memory: 12288
+ ```
+ 
+ We'll also need to update the `/etc/containers/containers.conf` file. If the file `containers.conf` does not exist, you can download a version [here](https://github.com/containers/common/blob/master/pkg/config/containers.conf).
+
+```
+$ sudo vi /etc/containers/containers.conf
+```
+
+In the **[engine]** section, change (and/or uncomment):
+
+```
+cgroup_manager = "systemd"
+```
+
+to:
+
+```
+cgroup_manager = "cgroupfs"
+```
+
+And change:
+
+```
+events_logger = "journald"
+```
+
+to:
+
+```
+events_logger = "file"
+```
+
+Add your user to the `sudoers` file:
+```
+$ sudo visudo
+```
+Include the following entry: 
+```
+# Podman
+<your_username> ALL=(ALL) NOPASSWD: /usr/bin/podman
+```
+
+Start `minikube`:
+
+```
+$ minikube start --container-runtime containerd
+```
+
+You can start the `minikube` dashboard using the following command:
+
+```
+$ minikube dashboard
+```
+
+You may also want to include some add-ons for `minikube`:
+```
+$ minikube addons enable metrics-server
+$ minikube addons enable registry
+```
+
+Confirm `minikube` has started properly:
+```
+$ minikube status
+```
+
+To stop `minikube`:
+```
+$ minikube stop
+ ```
+ 
+ 
+
