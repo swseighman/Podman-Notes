@@ -237,11 +237,25 @@ $ curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linu
 $ sudo install minikube-linux-amd64 /usr/local/bin/minikube
 ```
 
+>NOTE: On MacOS:
+>```
+>$ curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-darwin-amd64
+>$ sudo install minikube-darwin-amd64 /usr/local/bin/minikube
+>```
+
+
 Install `kubectl`:
 ```
 $ curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
 $ sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
 ```
+
+>NOTE: MacOS
+>```
+>$ curl -LO "https://dl.k8s.io/release/$(curl -L -s >https://dl.k8s.io/release/stable.txt)/bin/darwin/amd64/kubectl"
+>```
+
+
 Check that `kubectl` installed properly:
 ```
 $ kubectl version --client --output=yaml
@@ -271,6 +285,11 @@ Now you can use `k` as an alias for `kubectl`:
 $ k version --client --output=yaml
 ```
 
+Execute the following command to allow `minikube access to our docker repositories:
+```
+$ eval $(minikube docker-env)
+```
+
 Set some `minikube` configuration parameters:
 
 ```
@@ -283,7 +302,7 @@ $ minikube config set memory 12288
  $ minikube config view
 - cpus: 4
 - driver: podman
-- memory: 12288
+- memory: 8196
  ```
  
  We'll also need to update the `/etc/containers/containers.conf` file. If the file `containers.conf` does not exist, you can download a version [here](https://github.com/containers/common/blob/master/pkg/config/containers.conf).
@@ -325,6 +344,10 @@ Include the following entry:
 # Podman
 <your_username> ALL=(ALL) NOPASSWD: /usr/bin/podman
 ```
+>NOTE: For MacOs:
+>```
+><your_username> ALL=(ALL) NOPASSWD: /usr/local/bin/podman
+>```
 
 Start `minikube`:
 
@@ -335,7 +358,7 @@ $ minikube start --container-runtime containerd
 You can start the `minikube` dashboard using the following command:
 
 ```
-$ minikube dashboard
+$ minikube dashboard &
 ```
 
 You may also want to include some add-ons for `minikube`:
